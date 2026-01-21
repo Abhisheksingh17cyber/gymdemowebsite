@@ -132,14 +132,12 @@ export default function HomePage() {
         </div>
 
         {/* Animated Particles */}
-        <div className="absolute inset-0 z-10">
+        <div className="absolute inset-0 z-10 overflow-hidden">
           {[...Array(20)].map((_, i) => (
             <motion.div
               key={i}
               className="absolute w-1 h-1 bg-red-500 rounded-full"
               initial={{ 
-                x: Math.random() * window?.innerWidth || 1000, 
-                y: Math.random() * window?.innerHeight || 800,
                 opacity: 0 
               }}
               animate={{ 
@@ -147,13 +145,13 @@ export default function HomePage() {
                 opacity: [0, 1, 0]
               }}
               transition={{ 
-                duration: Math.random() * 3 + 2,
+                duration: 3 + (i % 3),
                 repeat: Infinity,
-                delay: Math.random() * 2
+                delay: (i % 5) * 0.4
               }}
               style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
+                left: `${(i * 5) % 100}%`,
+                top: `${(i * 7) % 100}%`,
               }}
             />
           ))}

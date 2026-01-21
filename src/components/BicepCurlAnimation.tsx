@@ -1,241 +1,319 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { OrbitControls, Text, Float, Environment, useGLTF } from '@react-three/drei'
+import { OrbitControls, Environment, Float, Stars } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Animated Muscular Figure performing bicep curls
+// Enhanced Muscular Figure with better anatomy and dynamic biceps
 function MuscularFigure() {
   const groupRef = useRef<THREE.Group>(null)
   const rightArmRef = useRef<THREE.Group>(null)
   const leftArmRef = useRef<THREE.Group>(null)
-  const dumbbellRightRef = useRef<THREE.Mesh>(null)
-  const dumbbellLeftRef = useRef<THREE.Mesh>(null)
-  const [curlPhase, setCurlPhase] = useState(0)
+  const [intensity, setIntensity] = useState(0)
 
   useFrame((state) => {
     const time = state.clock.getElapsedTime()
     
-    // Bicep curl animation - alternating arms
-    const rightCurl = Math.sin(time * 2) * 0.5 + 0.5 // 0 to 1
-    const leftCurl = Math.sin(time * 2 + Math.PI) * 0.5 + 0.5 // Offset by PI for alternating
+    // Smooth bicep curl animation - alternating arms
+    const rightCurl = Math.sin(time * 1.5) * 0.5 + 0.5
+    const leftCurl = Math.sin(time * 1.5 + Math.PI) * 0.5 + 0.5
     
     // Animate right arm
     if (rightArmRef.current) {
-      rightArmRef.current.rotation.x = -rightCurl * 2.2
+      rightArmRef.current.rotation.x = -rightCurl * 2.4
     }
     
     // Animate left arm
     if (leftArmRef.current) {
-      leftArmRef.current.rotation.x = -leftCurl * 2.2
+      leftArmRef.current.rotation.x = -leftCurl * 2.4
     }
     
-    // Subtle body movement
+    // Dynamic body movement
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(time * 0.5) * 0.1
-      groupRef.current.position.y = Math.sin(time * 2) * 0.02
+      groupRef.current.rotation.y = Math.sin(time * 0.3) * 0.15
+      groupRef.current.position.y = Math.sin(time * 1.5) * 0.03 - 1.5
     }
     
-    setCurlPhase(rightCurl)
+    setIntensity(Math.max(rightCurl, leftCurl))
   })
 
-  // Material for the body
-  const bodyMaterial = new THREE.MeshStandardMaterial({
+  // Enhanced materials with useMemo for performance
+  const bodyMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#d4a574',
-    roughness: 0.6,
-    metalness: 0.1,
-  })
-
-  const muscleMaterial = new THREE.MeshStandardMaterial({
-    color: '#c9956a',
     roughness: 0.5,
-    metalness: 0.15,
-  })
+    metalness: 0.1,
+  }), [])
 
-  const shortsMaterial = new THREE.MeshStandardMaterial({
+  const muscleMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#c9956a',
+    roughness: 0.4,
+    metalness: 0.15,
+  }), [])
+
+  const shortsMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#1a1a1a',
     roughness: 0.8,
     metalness: 0,
-  })
+  }), [])
 
-  const dumbbellMaterial = new THREE.MeshStandardMaterial({
+  const dumbbellMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#2a2a2a',
-    roughness: 0.3,
-    metalness: 0.8,
-  })
+    roughness: 0.2,
+    metalness: 0.9,
+  }), [])
 
-  const redMaterial = new THREE.MeshStandardMaterial({
+  const redMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: '#dc2626',
-    roughness: 0.4,
-    metalness: 0.3,
+    roughness: 0.3,
+    metalness: 0.4,
     emissive: '#dc2626',
+    emissiveIntensity: 0.3,
+  }), [])
+
+  const goldMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#fbbf24',
+    roughness: 0.3,
+    metalness: 0.6,
+    emissive: '#fbbf24',
     emissiveIntensity: 0.2,
-  })
+  }), [])
 
   return (
     <group ref={groupRef} position={[0, -1.5, 0]}>
+      {/* Head */}
+      <mesh position={[0, 2.6, 0]} material={bodyMaterial}>
+        <sphereGeometry args={[0.22, 32, 32]} />
+      </mesh>
+      
+      {/* Neck */}
+      <mesh position={[0, 2.35, 0]} material={bodyMaterial}>
+        <cylinderGeometry args={[0.12, 0.14, 0.15, 16]} />
+      </mesh>
+      
       {/* Torso */}
       <mesh position={[0, 1.8, 0]} material={bodyMaterial}>
-        <capsuleGeometry args={[0.4, 0.8, 8, 16]} />
+        <capsuleGeometry args={[0.42, 0.85, 12, 24]} />
       </mesh>
       
-      {/* Chest muscles */}
-      <mesh position={[-0.15, 2, 0.25]} material={muscleMaterial}>
-        <sphereGeometry args={[0.2, 16, 16]} />
+      {/* Enhanced Chest muscles */}
+      <mesh position={[-0.18, 2.05, 0.28]} material={muscleMaterial}>
+        <sphereGeometry args={[0.22, 24, 24]} />
       </mesh>
-      <mesh position={[0.15, 2, 0.25]} material={muscleMaterial}>
-        <sphereGeometry args={[0.2, 16, 16]} />
+      <mesh position={[0.18, 2.05, 0.28]} material={muscleMaterial}>
+        <sphereGeometry args={[0.22, 24, 24]} />
       </mesh>
       
-      {/* Abs */}
-      {[0, -0.15, -0.3, -0.45].map((y, i) => (
+      {/* Chest center line */}
+      <mesh position={[0, 1.95, 0.35]} material={muscleMaterial}>
+        <boxGeometry args={[0.04, 0.5, 0.08]} />
+      </mesh>
+      
+      {/* Enhanced 6-pack Abs */}
+      {[0, -0.12, -0.24, -0.36, -0.48, -0.60].map((y, i) => (
         <group key={i}>
-          <mesh position={[-0.08, 1.7 + y, 0.3]} material={muscleMaterial}>
-            <boxGeometry args={[0.12, 0.1, 0.1]} />
+          <mesh position={[-0.1, 1.75 + y, 0.32]} material={muscleMaterial}>
+            <boxGeometry args={[0.14, 0.08, 0.12]} />
           </mesh>
-          <mesh position={[0.08, 1.7 + y, 0.3]} material={muscleMaterial}>
-            <boxGeometry args={[0.12, 0.1, 0.1]} />
+          <mesh position={[0.1, 1.75 + y, 0.32]} material={muscleMaterial}>
+            <boxGeometry args={[0.14, 0.08, 0.12]} />
           </mesh>
         </group>
       ))}
       
-      {/* Head */}
-      <mesh position={[0, 2.7, 0]} material={bodyMaterial}>
-        <sphereGeometry args={[0.25, 16, 16]} />
+      {/* Obliques */}
+      <mesh position={[-0.35, 1.5, 0.15]} rotation={[0, 0, 0.3]} material={muscleMaterial}>
+        <boxGeometry args={[0.12, 0.4, 0.15]} />
+      </mesh>
+      <mesh position={[0.35, 1.5, 0.15]} rotation={[0, 0, -0.3]} material={muscleMaterial}>
+        <boxGeometry args={[0.12, 0.4, 0.15]} />
       </mesh>
       
-      {/* Neck */}
-      <mesh position={[0, 2.4, 0]} material={bodyMaterial}>
-        <cylinderGeometry args={[0.12, 0.15, 0.2, 16]} />
+      {/* Shoulders (Deltoids) */}
+      <mesh position={[-0.52, 2.2, 0]} material={muscleMaterial}>
+        <sphereGeometry args={[0.18, 24, 24]} />
+      </mesh>
+      <mesh position={[0.52, 2.2, 0]} material={muscleMaterial}>
+        <sphereGeometry args={[0.18, 24, 24]} />
       </mesh>
       
-      {/* Shorts */}
-      <mesh position={[0, 1.1, 0]} material={shortsMaterial}>
-        <cylinderGeometry args={[0.35, 0.4, 0.4, 16]} />
+      {/* Trapezius */}
+      <mesh position={[-0.2, 2.35, -0.05]} rotation={[0, 0, -0.5]} material={muscleMaterial}>
+        <boxGeometry args={[0.15, 0.25, 0.12]} />
       </mesh>
-      
-      {/* Legs */}
-      <mesh position={[-0.2, 0.5, 0]} material={bodyMaterial}>
-        <capsuleGeometry args={[0.15, 0.6, 8, 16]} />
-      </mesh>
-      <mesh position={[0.2, 0.5, 0]} material={bodyMaterial}>
-        <capsuleGeometry args={[0.15, 0.6, 8, 16]} />
-      </mesh>
-      
-      {/* Shoulders */}
-      <mesh position={[-0.5, 2.2, 0]} material={muscleMaterial}>
-        <sphereGeometry args={[0.18, 16, 16]} />
-      </mesh>
-      <mesh position={[0.5, 2.2, 0]} material={muscleMaterial}>
-        <sphereGeometry args={[0.18, 16, 16]} />
+      <mesh position={[0.2, 2.35, -0.05]} rotation={[0, 0, 0.5]} material={muscleMaterial}>
+        <boxGeometry args={[0.15, 0.25, 0.12]} />
       </mesh>
       
       {/* Right Arm Group */}
-      <group ref={rightArmRef} position={[0.5, 2.1, 0]}>
+      <group ref={rightArmRef} position={[-0.52, 2.1, 0]}>
         {/* Upper Arm */}
-        <mesh position={[0.15, -0.2, 0]} rotation={[0, 0, -0.3]} material={bodyMaterial}>
-          <capsuleGeometry args={[0.1, 0.35, 8, 16]} />
+        <mesh position={[0, -0.25, 0]} material={bodyMaterial}>
+          <capsuleGeometry args={[0.12, 0.35, 8, 16]} />
         </mesh>
-        {/* Bicep bulge */}
-        <mesh position={[0.12, -0.15, 0.08]} material={muscleMaterial}>
-          <sphereGeometry args={[0.12, 16, 16]} />
+        
+        {/* Animated Bicep - grows during curl */}
+        <mesh position={[0, -0.2, 0.08]} scale={[1, 1, 1 + intensity * 0.4]} material={muscleMaterial}>
+          <sphereGeometry args={[0.14, 24, 24]} />
         </mesh>
+        
+        {/* Tricep */}
+        <mesh position={[0, -0.25, -0.08]} material={muscleMaterial}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+        </mesh>
+        
         {/* Forearm */}
-        <mesh position={[0.25, -0.55, 0]} rotation={[0, 0, -0.3]} material={bodyMaterial}>
-          <capsuleGeometry args={[0.08, 0.3, 8, 16]} />
-        </mesh>
-        {/* Dumbbell */}
-        <group position={[0.3, -0.8, 0]}>
-          {/* Handle */}
-          <mesh material={dumbbellMaterial}>
-            <cylinderGeometry args={[0.03, 0.03, 0.25, 16]} />
+        <group position={[0, -0.55, 0]}>
+          <mesh material={bodyMaterial}>
+            <capsuleGeometry args={[0.09, 0.3, 8, 16]} />
           </mesh>
-          {/* Weights */}
-          <mesh position={[0, 0.15, 0]} material={redMaterial}>
-            <cylinderGeometry args={[0.08, 0.08, 0.06, 16]} />
+          
+          {/* Hand */}
+          <mesh position={[0, -0.22, 0]} material={bodyMaterial}>
+            <boxGeometry args={[0.08, 0.12, 0.05]} />
           </mesh>
-          <mesh position={[0, -0.15, 0]} material={redMaterial}>
-            <cylinderGeometry args={[0.08, 0.08, 0.06, 16]} />
-          </mesh>
+          
+          {/* Dumbbell */}
+          <group position={[0, -0.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            {/* Handle */}
+            <mesh material={dumbbellMaterial}>
+              <cylinderGeometry args={[0.025, 0.025, 0.35, 16]} />
+            </mesh>
+            {/* Weight plates */}
+            <mesh position={[0, -0.15, 0]} material={redMaterial}>
+              <cylinderGeometry args={[0.1, 0.1, 0.06, 24]} />
+            </mesh>
+            <mesh position={[0, 0.15, 0]} material={redMaterial}>
+              <cylinderGeometry args={[0.1, 0.1, 0.06, 24]} />
+            </mesh>
+            {/* Gold accents */}
+            <mesh position={[0, -0.12, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.07, 0.07, 0.02, 24]} />
+            </mesh>
+            <mesh position={[0, 0.12, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.07, 0.07, 0.02, 24]} />
+            </mesh>
+          </group>
         </group>
       </group>
       
       {/* Left Arm Group */}
-      <group ref={leftArmRef} position={[-0.5, 2.1, 0]}>
+      <group ref={leftArmRef} position={[0.52, 2.1, 0]}>
         {/* Upper Arm */}
-        <mesh position={[-0.15, -0.2, 0]} rotation={[0, 0, 0.3]} material={bodyMaterial}>
-          <capsuleGeometry args={[0.1, 0.35, 8, 16]} />
+        <mesh position={[0, -0.25, 0]} material={bodyMaterial}>
+          <capsuleGeometry args={[0.12, 0.35, 8, 16]} />
         </mesh>
-        {/* Bicep bulge */}
-        <mesh position={[-0.12, -0.15, 0.08]} material={muscleMaterial}>
-          <sphereGeometry args={[0.12, 16, 16]} />
+        
+        {/* Animated Bicep */}
+        <mesh position={[0, -0.2, 0.08]} scale={[1, 1, 1 + (1 - intensity) * 0.4]} material={muscleMaterial}>
+          <sphereGeometry args={[0.14, 24, 24]} />
         </mesh>
+        
+        {/* Tricep */}
+        <mesh position={[0, -0.25, -0.08]} material={muscleMaterial}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+        </mesh>
+        
         {/* Forearm */}
-        <mesh position={[-0.25, -0.55, 0]} rotation={[0, 0, 0.3]} material={bodyMaterial}>
-          <capsuleGeometry args={[0.08, 0.3, 8, 16]} />
-        </mesh>
-        {/* Dumbbell */}
-        <group position={[-0.3, -0.8, 0]}>
-          {/* Handle */}
-          <mesh material={dumbbellMaterial}>
-            <cylinderGeometry args={[0.03, 0.03, 0.25, 16]} />
+        <group position={[0, -0.55, 0]}>
+          <mesh material={bodyMaterial}>
+            <capsuleGeometry args={[0.09, 0.3, 8, 16]} />
           </mesh>
-          {/* Weights */}
-          <mesh position={[0, 0.15, 0]} material={redMaterial}>
-            <cylinderGeometry args={[0.08, 0.08, 0.06, 16]} />
+          
+          {/* Hand */}
+          <mesh position={[0, -0.22, 0]} material={bodyMaterial}>
+            <boxGeometry args={[0.08, 0.12, 0.05]} />
           </mesh>
-          <mesh position={[0, -0.15, 0]} material={redMaterial}>
-            <cylinderGeometry args={[0.08, 0.08, 0.06, 16]} />
-          </mesh>
+          
+          {/* Dumbbell */}
+          <group position={[0, -0.25, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <mesh material={dumbbellMaterial}>
+              <cylinderGeometry args={[0.025, 0.025, 0.35, 16]} />
+            </mesh>
+            <mesh position={[0, -0.15, 0]} material={redMaterial}>
+              <cylinderGeometry args={[0.1, 0.1, 0.06, 24]} />
+            </mesh>
+            <mesh position={[0, 0.15, 0]} material={redMaterial}>
+              <cylinderGeometry args={[0.1, 0.1, 0.06, 24]} />
+            </mesh>
+            <mesh position={[0, -0.12, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.07, 0.07, 0.02, 24]} />
+            </mesh>
+            <mesh position={[0, 0.12, 0]} material={goldMaterial}>
+              <cylinderGeometry args={[0.07, 0.07, 0.02, 24]} />
+            </mesh>
+          </group>
         </group>
       </group>
+      
+      {/* Shorts/Hips */}
+      <mesh position={[0, 1, 0]} material={shortsMaterial}>
+        <capsuleGeometry args={[0.3, 0.25, 8, 16]} />
+      </mesh>
+      
+      {/* Legs */}
+      <mesh position={[-0.18, 0.4, 0]} material={bodyMaterial}>
+        <capsuleGeometry args={[0.14, 0.6, 8, 16]} />
+      </mesh>
+      <mesh position={[0.18, 0.4, 0]} material={bodyMaterial}>
+        <capsuleGeometry args={[0.14, 0.6, 8, 16]} />
+      </mesh>
+      
+      {/* Thigh muscles */}
+      <mesh position={[-0.18, 0.55, 0.08]} material={muscleMaterial}>
+        <sphereGeometry args={[0.12, 16, 16]} />
+      </mesh>
+      <mesh position={[0.18, 0.55, 0.08]} material={muscleMaterial}>
+        <sphereGeometry args={[0.12, 16, 16]} />
+      </mesh>
+      
+      {/* Lower legs */}
+      <mesh position={[-0.18, -0.2, 0]} material={bodyMaterial}>
+        <capsuleGeometry args={[0.1, 0.5, 8, 16]} />
+      </mesh>
+      <mesh position={[0.18, -0.2, 0]} material={bodyMaterial}>
+        <capsuleGeometry args={[0.1, 0.5, 8, 16]} />
+      </mesh>
+      
+      {/* Calf muscles */}
+      <mesh position={[-0.18, -0.1, -0.06]} material={muscleMaterial}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+      </mesh>
+      <mesh position={[0.18, -0.1, -0.06]} material={muscleMaterial}>
+        <sphereGeometry args={[0.08, 16, 16]} />
+      </mesh>
     </group>
   )
 }
 
-// Floating text instructions
-function InstructionText() {
-  return (
-    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-      <Text
-        position={[0, 2.5, 0]}
-        fontSize={0.25}
-        color="#dc2626"
-        font="/fonts/Oswald-Bold.ttf"
-        anchorX="center"
-        anchorY="middle"
-      >
-        BICEP CURLS
-      </Text>
-      <Text
-        position={[0, 2.2, 0]}
-        fontSize={0.12}
-        color="#ffffff"
-        anchorX="center"
-        anchorY="middle"
-      >
-        Keep your elbows close to your body!
-      </Text>
-    </Float>
-  )
-}
-
-// Particle effects around the figure
-function Particles() {
+// Energy particles with colors
+function EnergyParticles() {
   const particlesRef = useRef<THREE.Points>(null)
-  const count = 100
+  const count = 150
   
-  const positions = new Float32Array(count * 3)
-  for (let i = 0; i < count; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 5
-    positions[i * 3 + 1] = Math.random() * 4
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 5
-  }
+  const { positions, colors } = useMemo(() => {
+    const pos = new Float32Array(count * 3)
+    const col = new Float32Array(count * 3)
+    
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2
+      const radius = 1.5 + (i % 10) * 0.15
+      pos[i * 3] = Math.cos(angle) * radius
+      pos[i * 3 + 1] = ((i % 20) - 10) * 0.2
+      pos[i * 3 + 2] = Math.sin(angle) * radius
+      
+      // Red and gold particles
+      const isRed = i % 3 !== 0
+      col[i * 3] = isRed ? 0.86 : 0.98     // R
+      col[i * 3 + 1] = isRed ? 0.15 : 0.75 // G
+      col[i * 3 + 2] = isRed ? 0.15 : 0.15 // B
+    }
+    return { positions: pos, colors: col }
+  }, [])
   
   useFrame((state) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 0.05
+      particlesRef.current.rotation.y = state.clock.getElapsedTime() * 0.15
     }
   })
   
@@ -248,56 +326,173 @@ function Particles() {
           array={positions}
           itemSize={3}
         />
+        <bufferAttribute
+          attach="attributes-color"
+          count={count}
+          array={colors}
+          itemSize={3}
+        />
       </bufferGeometry>
       <pointsMaterial
-        size={0.03}
-        color="#dc2626"
+        size={0.04}
+        vertexColors
         transparent
-        opacity={0.6}
+        opacity={0.8}
         sizeAttenuation
       />
     </points>
   )
 }
 
-// Platform/Ground
+// Animated platform with energy rings
 function Platform() {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
-      <circleGeometry args={[2, 64]} />
-      <meshStandardMaterial
-        color="#1a1a1a"
-        roughness={0.8}
-        metalness={0.2}
-      />
-    </mesh>
-  )
-}
-
-// Glowing ring around platform
-function GlowRing() {
   const ringRef = useRef<THREE.Mesh>(null)
+  const innerRingRef = useRef<THREE.Mesh>(null)
   
   useFrame((state) => {
     if (ringRef.current) {
-      ringRef.current.rotation.z = state.clock.getElapsedTime() * 0.2
+      ringRef.current.rotation.z = state.clock.getElapsedTime() * 0.3
+    }
+    if (innerRingRef.current) {
+      innerRingRef.current.rotation.z = -state.clock.getElapsedTime() * 0.5
     }
   })
   
   return (
-    <mesh ref={ringRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.48, 0]}>
-      <ringGeometry args={[1.8, 2, 64]} />
-      <meshStandardMaterial
-        color="#dc2626"
-        emissive="#dc2626"
-        emissiveIntensity={0.5}
-        transparent
-        opacity={0.3}
-      />
-    </mesh>
+    <group position={[0, -1.5, 0]}>
+      {/* Main platform */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <circleGeometry args={[2.2, 64]} />
+        <meshStandardMaterial
+          color="#0a0a0a"
+          roughness={0.3}
+          metalness={0.8}
+        />
+      </mesh>
+      
+      {/* Outer glow ring */}
+      <mesh ref={ringRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+        <ringGeometry args={[1.9, 2.1, 64]} />
+        <meshStandardMaterial
+          color="#dc2626"
+          emissive="#dc2626"
+          emissiveIntensity={1}
+          transparent
+          opacity={0.6}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* Inner accent ring */}
+      <mesh ref={innerRingRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
+        <ringGeometry args={[1.4, 1.5, 64]} />
+        <meshStandardMaterial
+          color="#fbbf24"
+          emissive="#fbbf24"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      
+      {/* Grid lines on platform */}
+      {[...Array(8)].map((_, i) => (
+        <mesh
+          key={i}
+          rotation={[-Math.PI / 2, 0, (i / 8) * Math.PI]}
+          position={[0, 0.01, 0]}
+        >
+          <planeGeometry args={[0.02, 4]} />
+          <meshStandardMaterial
+            color="#dc2626"
+            transparent
+            opacity={0.3}
+          />
+        </mesh>
+      ))}
+    </group>
   )
 }
 
+// Floating energy orbs
+function EnergyOrbs() {
+  const orbsRef = useRef<THREE.Group>(null)
+  
+  useFrame((state) => {
+    if (orbsRef.current) {
+      orbsRef.current.rotation.y = state.clock.getElapsedTime() * 0.2
+    }
+  })
+  
+  return (
+    <group ref={orbsRef}>
+      {[0, 120, 240].map((angle, i) => (
+        <Float key={i} speed={2} rotationIntensity={0} floatIntensity={1}>
+          <mesh
+            position={[
+              Math.cos((angle * Math.PI) / 180) * 2.5,
+              0.5 + i * 0.3,
+              Math.sin((angle * Math.PI) / 180) * 2.5
+            ]}
+          >
+            <sphereGeometry args={[0.08, 32, 32]} />
+            <meshStandardMaterial
+              color={i === 1 ? '#fbbf24' : '#dc2626'}
+              emissive={i === 1 ? '#fbbf24' : '#dc2626'}
+              emissiveIntensity={2}
+            />
+          </mesh>
+        </Float>
+      ))}
+    </group>
+  )
+}
+
+// Dynamic lighting
+function DynamicLights() {
+  const spotLightRef = useRef<THREE.SpotLight>(null)
+  
+  useFrame((state) => {
+    if (spotLightRef.current) {
+      spotLightRef.current.position.x = Math.sin(state.clock.getElapsedTime()) * 3
+      spotLightRef.current.position.z = Math.cos(state.clock.getElapsedTime()) * 3
+    }
+  })
+  
+  return (
+    <>
+      <ambientLight intensity={0.3} />
+      <directionalLight
+        position={[5, 8, 5]}
+        intensity={1.2}
+        castShadow
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
+      />
+      <pointLight position={[-4, 3, -4]} intensity={0.5} color="#dc2626" />
+      <pointLight position={[4, 3, 4]} intensity={0.4} color="#fbbf24" />
+      <spotLight
+        ref={spotLightRef}
+        position={[0, 6, 0]}
+        angle={0.4}
+        penumbra={1}
+        intensity={1}
+        color="#dc2626"
+        castShadow
+      />
+      <spotLight
+        position={[0, -2, 5]}
+        angle={0.6}
+        penumbra={0.5}
+        intensity={0.3}
+        color="#fbbf24"
+      />
+    </>
+  )
+}
+
+// Main component
 export default function BicepCurlAnimation() {
   const [mounted, setMounted] = useState(false)
 
@@ -310,7 +505,7 @@ export default function BicepCurlAnimation() {
       <div className="w-full h-[500px] lg:h-[600px] flex items-center justify-center bg-gradient-to-br from-dark-300 to-dark-900 rounded-2xl">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading 3D Animation...</p>
+          <p className="text-gray-400">Loading 3D Experience...</p>
         </div>
       </div>
     )
@@ -318,37 +513,33 @@ export default function BicepCurlAnimation() {
 
   return (
     <div className="w-full h-[500px] lg:h-[600px] relative rounded-2xl overflow-hidden">
-      {/* Gradient background */}
+      {/* Enhanced gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-dark-300 via-dark-500 to-dark-900" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-red-900/20 via-transparent to-transparent" />
       
       {/* 3D Canvas */}
       <Canvas
-        camera={{ position: [0, 0.5, 4], fov: 50 }}
+        camera={{ position: [0, 0.8, 4.5], fov: 45 }}
         shadows
+        gl={{ antialias: true, alpha: true }}
         className="absolute inset-0"
       >
-        <ambientLight intensity={0.4} />
-        <directionalLight
-          position={[5, 5, 5]}
-          intensity={1}
-          castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-        />
-        <pointLight position={[-5, 3, -5]} intensity={0.5} color="#dc2626" />
-        <pointLight position={[5, 3, 5]} intensity={0.3} color="#fbbf24" />
-        <spotLight
-          position={[0, 5, 0]}
-          angle={0.5}
-          penumbra={1}
-          intensity={0.5}
-          color="#dc2626"
-        />
+        <DynamicLights />
         
         <MuscularFigure />
         <Platform />
-        <GlowRing />
-        <Particles />
+        <EnergyParticles />
+        <EnergyOrbs />
+        
+        <Stars
+          radius={100}
+          depth={50}
+          count={1000}
+          factor={4}
+          saturation={0}
+          fade
+          speed={1}
+        />
         
         <OrbitControls
           enableZoom={false}
@@ -356,29 +547,37 @@ export default function BicepCurlAnimation() {
           minPolarAngle={Math.PI / 4}
           maxPolarAngle={Math.PI / 2}
           autoRotate
-          autoRotateSpeed={0.5}
+          autoRotateSpeed={0.8}
         />
         
         <Environment preset="night" />
+        
+        {/* Fog for depth */}
+        <fog attach="fog" args={['#0a0a0a', 8, 20]} />
       </Canvas>
       
       {/* Overlay UI */}
       <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end pointer-events-none">
-        <div className="glass-card p-4">
-          <p className="text-red-500 font-bold text-sm uppercase tracking-wider">Exercise</p>
-          <h3 className="text-white font-display text-xl">Bicep Curls</h3>
+        <div className="glass-card p-4 backdrop-blur-md bg-black/30 border border-red-600/30 rounded-xl">
+          <p className="text-red-500 font-bold text-xs uppercase tracking-wider mb-1">Exercise</p>
+          <h3 className="text-white font-display text-xl font-bold">Bicep Curls</h3>
+          <p className="text-gray-400 text-xs mt-1">3 sets × 12 reps</p>
         </div>
-        <div className="glass-card p-4 text-right">
-          <p className="text-gray-400 text-sm">Drag to rotate</p>
-          <p className="text-red-500 font-semibold">Interactive 3D</p>
+        <div className="glass-card p-4 text-right backdrop-blur-md bg-black/30 border border-red-600/30 rounded-xl">
+          <p className="text-gray-400 text-xs mb-1">Drag to rotate</p>
+          <p className="text-red-500 font-semibold text-sm">Interactive 3D</p>
+          <div className="flex items-center justify-end gap-1 mt-1">
+            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-green-500 text-xs">Live</span>
+          </div>
         </div>
       </div>
       
-      {/* Corner decorations */}
-      <div className="absolute top-4 left-4 w-12 h-12 border-l-2 border-t-2 border-red-600 opacity-50" />
-      <div className="absolute top-4 right-4 w-12 h-12 border-r-2 border-t-2 border-red-600 opacity-50" />
-      <div className="absolute bottom-4 left-4 w-12 h-12 border-l-2 border-b-2 border-red-600 opacity-50" />
-      <div className="absolute bottom-4 right-4 w-12 h-12 border-r-2 border-b-2 border-red-600 opacity-50" />
+      {/* Pulse effect corners */}
+      <div className="absolute top-0 left-0 w-24 h-24 border-l-2 border-t-2 border-red-600/50 rounded-tl-2xl" />
+      <div className="absolute top-0 right-0 w-24 h-24 border-r-2 border-t-2 border-red-600/50 rounded-tr-2xl" />
+      <div className="absolute bottom-0 left-0 w-24 h-24 border-l-2 border-b-2 border-red-600/50 rounded-bl-2xl" />
+      <div className="absolute bottom-0 right-0 w-24 h-24 border-r-2 border-b-2 border-red-600/50 rounded-br-2xl" />
     </div>
   )
 }

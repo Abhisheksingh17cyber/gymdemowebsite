@@ -217,3 +217,17 @@ select:focus {
 .mobile-menu.open {
   @apply translate-x-0;
 }
+
+/* Scan line animation for 3D component */
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  100% {
+    top: 100%;
+  }
+}
+
+.animate-scan {
+  animation: scan 3s linear infinite;
+}

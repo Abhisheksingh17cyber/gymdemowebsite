@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ironforge-gym.vercel.app'),
   title: 'IRONFORGE GYM | Transform Your Body, Transform Your Life',
   description: 'Premium fitness center with world-class equipment, expert trainers, and personalized programs. Join IRONFORGE GYM and unleash your potential.',
   keywords: 'gym, fitness, workout, bodybuilding, personal training, CrossFit, strength training',
@@ -12,6 +13,12 @@ export const metadata: Metadata = {
     title: 'IRONFORGE GYM | Transform Your Body, Transform Your Life',
     description: 'Premium fitness center with world-class equipment, expert trainers, and personalized programs.',
     type: 'website',
+    images: ['/og-image.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'IRONFORGE GYM | Transform Your Body, Transform Your Life',
+    description: 'Premium fitness center with world-class equipment, expert trainers, and personalized programs.',
   },
 }
 
