@@ -9,13 +9,13 @@ import { GiMuscleUp, GiWeightLiftingUp, GiRunningShoe, GiMeditation } from 'reac
 import dynamic from 'next/dynamic'
 
 // Dynamic import for 3D component
-const BicepCurlAnimation = dynamic(() => import('@/components/BicepCurlAnimation'), {
+const GymShowcase3D = dynamic(() => import('@/components/GymShowcase3D'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[500px] lg:h-[600px] flex items-center justify-center bg-gradient-to-br from-dark-300 to-dark-900 rounded-2xl">
       <div className="text-center">
         <div className="w-16 h-16 border-4 border-red-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-gray-400">Loading 3D Animation...</p>
+        <p className="text-gray-400">Loading 3D Experience...</p>
       </div>
     </div>
   ),
@@ -263,7 +263,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="section-subtitle"
             >
-              Interactive Training Guide
+              Premium Facilities
             </motion.span>
             <motion.h2 
               initial={{ opacity: 0, y: 20 }}
@@ -272,7 +272,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="section-title mt-2"
             >
-              Learn <span className="text-gradient">Perfect Form</span>
+              World-Class <span className="text-gradient">Equipment</span>
             </motion.h2>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -281,8 +281,8 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="text-gray-400 mt-4 max-w-2xl mx-auto"
             >
-              Our interactive 3D training guide helps you master the perfect form for bicep curls. 
-              Watch, learn, and achieve maximum results with proper technique.
+              Experience our state-of-the-art gym equipment designed for maximum performance. 
+              From free weights to advanced machines, we have everything you need.
             </motion.p>
           </div>
           
@@ -293,7 +293,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="order-2 lg:order-1"
             >
-              <BicepCurlAnimation />
+              <GymShowcase3D />
             </motion.div>
             
             <motion.div
@@ -302,19 +302,19 @@ export default function HomePage() {
               viewport={{ once: true }}
               className="order-1 lg:order-2 space-y-6"
             >
-              <h3 className="text-3xl font-display font-bold">Master the <span className="text-red-500">Bicep Curl</span></h3>
+              <h3 className="text-3xl font-display font-bold">Train With <span className="text-red-500">The Best</span></h3>
               <p className="text-gray-400">
-                The bicep curl is a fundamental exercise for building arm strength and size. 
-                Our 3D visualization shows you exactly how to perform it correctly.
+                Our gym features premium equipment from world-renowned brands. 
+                Every piece is carefully selected to help you achieve your fitness goals.
               </p>
               
               <div className="space-y-4">
                 {[
-                  'Stand with feet shoulder-width apart',
-                  'Keep your elbows close to your torso',
-                  'Curl the weights while contracting your biceps',
-                  'Slowly lower back to starting position',
-                  'Repeat for 3 sets of 12 repetitions',
+                  'Premium free weights & dumbbells',
+                  'State-of-the-art cardio machines',
+                  'Olympic lifting platforms',
+                  'Functional training zones',
+                  'Recovery & stretching areas',
                 ].map((step, index) => (
                   <div key={index} className="flex items-start gap-3">
                     <div className="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -326,7 +326,7 @@ export default function HomePage() {
               </div>
               
               <Link href="/programs" className="btn-primary inline-flex items-center gap-2">
-                View All Exercises <FaArrowRight />
+                Explore Programs <FaArrowRight />
               </Link>
             </motion.div>
           </div>
